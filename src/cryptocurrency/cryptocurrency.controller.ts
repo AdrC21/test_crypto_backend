@@ -1,20 +1,27 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus } from '@nestjs/common';
 import { CryptocurrencyService } from './cryptocurrency.service';
 import { CreateCryptocurrencyDto } from './dto/create-cryptocurrency.dto';
 import { UpdateCryptocurrencyDto } from './dto/update-cryptocurrency.dto';
+import { Moneda } from 'src/currency/entities/currency.entity';
+import { ApiBasicAuth } from '@nestjs/swagger';
 
 @Controller('cryptocurrency')
 export class CryptocurrencyController {
   constructor(private readonly cryptocurrencyService: CryptocurrencyService) {}
 
   @Post()
+  @ApiBasicAuth('Authorization')
+  @HttpCode(HttpStatus.CREATED)
   create(@Body() createCryptocurrencyDto: CreateCryptocurrencyDto) {
     return this.cryptocurrencyService.create(createCryptocurrencyDto);
   }
 
   @Get()
-  findAll() {
-    return this.cryptocurrencyService.findAll();
+  @ApiBasicAuth('Authorization')
+  @HttpCode(HttpStatus.OK)
+  findAll(@Param('monedaCode') monedaCode?:string) {
+    console.log(monedaCode)
+    return this.cryptocurrencyService.findAllOrFiltered(monedaCode)
   }
 
   @Get(':id')

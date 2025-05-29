@@ -46,7 +46,8 @@ export class CryptocurrencyService {
     return this.criptomonedaRepository.save(newCriptomoneda);
   }
 
-  async findAllOrFiltered(monedaCode?: string): Promise<Criptomoneda[]> {
+  async findAllOrFiltered(monedaCode?: string) {
+    console.log('monedaCode:',monedaCode)
     if (monedaCode) {
 
       const moneda = await this.monedaRepository.findOne({ 
