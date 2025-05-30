@@ -18,42 +18,105 @@
     <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
   <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
 </p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
+## API para Plataforma de Criptomonedas
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+API REST para gestión de monedas y criptomonedas con autenticación JWT y replicación histórica de datos.
 
-## Instalar el proyecto
+## 📦 Instalación
 
 ```bash
-$ npm install
-```
+# 1. Clonar repositorio
+git clone [tu-repositorio]
 
-## Correr el proyecto
+# 2. Instalar dependencias
+npm install
 
-```bash
-# development
-$ npm run start
+# 3. Configurar entorno (copiar .env.example)
+cp .env.example .env
 
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
-```
-###  Documentación Swagger
-La documentación está disponible en:
-
-```
-http://localhost:3000/api
-```
-
-## Ejecutar base de datos con Docker Compose
-
-```
-bash
+# 4. Levantar PostgreSQL con Docker
 docker-compose up -d
-```
 
+# 5. Ejecutar la aplicación
+npm run start:dev
+
+## 🗄️ Diagrama de Base de Datos
+```mermaid
+erDiagram
+    USER ||--o{ CRIPTOMONEDA : crea
+    USER {
+        int id PK
+        string email
+        string password
+        datetime createdAt
+    }
+    
+    MONEDA {
+        int id PK
+        string cod
+        string name
+        string symbol
+        datetime createdAt
+        datetime updatedAt
+    }
+    
+    CRIPTOMONEDA {
+        int id PK
+        string name
+        string symbol
+        datetime createdAt
+        datetime updatedAt
+    }
+    
+    CRIPTOMONEDA_MONEDA {
+        int criptomonedaId FK
+        int monedaId FK
+    }
+    
+    MONEDA ||--o{ CRIPTOMONEDA_MONEDA : "many-to-many"
+    CRIPTOMONEDA ||--o{ CRIPTOMONEDA_MONEDA : "many-to-many"
+
+    ## 🗄️ Ejemplos de Peticiones
+    ```bash
+    #Registro
+    curl -X 'POST' 'http://localhost:3000/auth/register' \
+    -H 'Content-Type: application/json' \
+    -d '{"email": "user@example.com", "password": "12345678"}'
+
+    #Login (obtener JWT)
+    curl -X 'POST' 'http://localhost:3000/auth/login' \
+    -H 'Content-Type: application/json' \
+    -d '{"email": "user@example.com", "password": "12345678"}'
+
+    #Listar todas las monedas
+    curl -X 'GET' 'http://localhost:3000/moneda' \
+    -H 'Authorization: Bearer [JWT_TOKEN]'
+
+    #Crear nueva moneda
+    curl -X 'POST' 'http://localhost:3000/moneda' \
+    -H 'Authorization: Bearer [JWT_TOKEN]' \
+    -H 'Content-Type: application/json' \
+    -d '{"cod": "USD", "name": "Dólar", "symbol": "$"}'
+
+    #Listar Criptomonedas
+    curl -X 'GET' 'http://localhost:3000/cryptocurrency' \
+    -H 'Authorization: Bearer [JWT_TOKEN]'
+
+    #Crear nueva Criptomoneda
+    curl -X 'POST' 'http://localhost:3000/cryptocurrency' \
+    -H 'Authorization: Bearer [JWT_TOKEN]' \
+    -H 'Content-Type: application/json' \
+    -d '{"name": "Bitcoin", "symbol": "BTC", "monedas": [1]}'
+
+    ##📚 Documentación Swagger
+    Accede a la documentación interactiva en:
+    http://localhost:3000/api
+
+    ##🛠️ Tecnologías utilizadas
+      *NestJS
+      *TypeORM
+      *PostgreSQL
+      *JWT Authentication
+      *Docker
+      *Swagger
