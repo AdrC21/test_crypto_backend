@@ -40,6 +40,7 @@ docker-compose up -d
 
 # 5. Ejecutar la aplicación
 npm run start:dev
+```
 
 ## 🗄️ Diagrama de Base de Datos
 ```mermaid
@@ -76,7 +77,7 @@ erDiagram
     
     MONEDA ||--o{ CRIPTOMONEDA_MONEDA : "many-to-many"
     CRIPTOMONEDA ||--o{ CRIPTOMONEDA_MONEDA : "many-to-many"
-
+```
     ## 🗄️ Ejemplos de Peticiones
     ```bash
     #Registro
@@ -108,7 +109,7 @@ erDiagram
     -H 'Authorization: Bearer [JWT_TOKEN]' \
     -H 'Content-Type: application/json' \
     -d '{"name": "Bitcoin", "symbol": "BTC", "monedas": [1]}'
-
+```
     ##📚 Documentación Swagger
     Accede a la documentación interactiva en:
     http://localhost:3000/api
