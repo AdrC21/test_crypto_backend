@@ -1,9 +1,9 @@
-import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCryptocurrencyDto } from './dto/create-cryptocurrency.dto';
 import { UpdateCryptocurrencyDto } from './dto/update-cryptocurrency.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Criptomoneda } from './entities/cryptocurrency.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { CurrencyService } from 'src/currency/currency.service';
 import { Moneda } from 'src/currency/entities/currency.entity';
 
@@ -56,40 +56,48 @@ export class CryptocurrencyService {
       });
 
       if (!moneda) {
-        // Podrías lanzar un error 404 si la moneda no existe
-        // throw new NotFoundException(`Moneda con código "${monedaCode}" no encontrada`);
-        // O simplemente retornar un array vacío si no hay criptos para esa moneda
         return [];
       }
 
-      // Moneda encontrada, retornar sus criptomonedas asociadas
-      // Necesitas asegurar que la relación 'monedas' en Criptomoneda también se carga
-      // Una mejor manera es usar QueryBuilder
       return this.criptomonedaRepository.createQueryBuilder('cripto')
         .leftJoinAndSelect('cripto.monedas', 'moneda')
         .where('moneda.codigo = :code', { code: monedaCode.toUpperCase() })
-        .getMany(); // Obtener la lista de criptomonedas
+        .getMany();
     } else {
-      // Lógica para listar todas las criptomonedas con sus relaciones
       return this.criptomonedaRepository.find({
-        relations: ['monedas'], // Cargar la relación Muchos a Muchos
+        relations: ['monedas'],
       });
     }
   }
 
-  findAll() {
-    return `This action returns all cryptocurrency`;
+  async update(id: number, updateCryptocurrencyDto: UpdateCryptocurrencyDto) {
+    const crypto = await this.criptomonedaRepository.findOne({
+      where: { id },
+      relations: ['monedas'],
+    })
+    if (!crypto) {
+      throw new NotFoundException('Criptomoneda no encontrada')
+    }
+
+    let monedas = crypto.monedas;
+    if (updateCryptocurrencyDto.monedas && updateCryptocurrencyDto.monedas.length > 0) {
+      monedas = await this.monedaRepository.findBy({
+        id: In(updateCryptocurrencyDto.monedas),
+      });
+    }
+    // Mezclamos los datos existentes con los actualizados
+    const updatedCrypto = this.criptomonedaRepository.merge(crypto, {
+      ...updateCryptocurrencyDto,
+      monedas,
+    });
+
+    const cryto = this.criptomonedaRepository.save(updatedCrypto);
+
+    return {
+      msg: 'Criptomoneda Actualizada exitosamente',
+      cryto
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} cryptocurrency`;
-  }
 
-  update(id: number, updateCryptocurrencyDto: UpdateCryptocurrencyDto) {
-    return `This action updates a #${id} cryptocurrency`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} cryptocurrency`;
-  }
 }
