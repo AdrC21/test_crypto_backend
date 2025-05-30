@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCryptocurrencyDto } from './dto/create-cryptocurrency.dto';
 import { UpdateCryptocurrencyDto } from './dto/update-cryptocurrency.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -76,7 +76,7 @@ export class CryptocurrencyService {
       relations: ['monedas'],
     })
     if (!crypto) {
-      throw new NotFoundException('Criptomoneda no encontrada')
+      throw new HttpException('Criptomoneda no encontrada', HttpStatus.NOT_FOUND)
     }
 
     let monedas = crypto.monedas;
